@@ -9,9 +9,9 @@ export default function EndCall(){
     const {setMyStream, setRoomId, checkInRoom} = useContext(RoomContext)
     const {setUserId} = useContext(UserContext);
     useEffect(() => {
-        setMyStream(null);
-        setRoomId(null);
-        setUserId(null);
+        setMyStream(e => null);
+        setRoomId(e => null);
+        setUserId(e => null);
         checkInRoom.current = false;
     });
     const router = useRouter()

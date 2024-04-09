@@ -14,6 +14,7 @@ import Video from "../components/Video";
 import VideosCanva from "../components/VideoCanvaFull";
 import Controls from "../components/Control";
 import VideoSharingCanva from "../components/VideoSharingCanva";
+import WatchTogether from "../components/WatchTogether";
 // get peer Id
 
 // const peer = new Peer(undefined, {host:"/", port: "9000"});
@@ -28,6 +29,10 @@ export default function VideoCall(){
     const [share, setShare] = useState(false);
     useEffect(() => {
         console.log("in room status", checkInRoom.current)
+        if (!userId){
+            console.log("this is userid in videopage", userId);
+            return;
+        }
         if (checkInRoom.current == false){
             socket.emit("join-room", roomId, userId);
             checkInRoom.current = true;
@@ -36,7 +41,7 @@ export default function VideoCall(){
                 console.log("now sharing", share);
             })
         }
-    }, [])
+    }, [userId]);
     useEffect(() => {
         console.log(share);
     }, [share])
@@ -53,10 +58,20 @@ export default function VideoCall(){
             {/* <video ref={peervideo} style={{
                 width: "500px", height: "500px" }} id="peerVideo"></video> */}
             {/* <Video stream={peerStream} width={"100%"}></Video> */}
-            {share == true ? <div className="h-screen flex flex-col">
-                <VideoSharingCanva myStream={myStream} peerStream={peerStream} width={"250px"}></VideoSharingCanva>
-                <iframe src="https://ctt.hust.edu.vn/" width="auto" className="grow"></iframe>
-                </div> : <VideosCanva myStream={myStream} peerStream={peerStream} width={"100%"}></VideosCanva>
+            {share == true ? 
+            <div className="h-screen flex flex-row">
+                {/* <iframe src={`http://localhost:3000/watchTogether/${roomId}`} width="auto" className="grow"></iframe> */}
+                <div style={{width: "80vw"}}>
+                    <WatchTogether roomId={roomId}></WatchTogether>
+                </div>
+                <div style={{ backgroundColor:"#19202A"}} className="flex flex-col justify-start items-center grow">
+                    <div style={{width: "20vw"}}>
+                        <Video stream={peerStream} muted={false} width={"100%"} height={"100px"}></Video>
+                    </div>
+                </div>
+                {/* other peer */}
+            </div> : 
+            <VideosCanva myStream={myStream} peerStream={peerStream} width={"100%"}></VideosCanva>
             }
             <div className="absolute top-[90%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <Controls setShare={setShare} share={share} width={"2rem"} height={"2rem"}></Controls>

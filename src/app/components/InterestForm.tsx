@@ -39,23 +39,25 @@ export default function InterestForm({selectedInterests, setInterests, dispatch}
         }
         console.log(selectedInterests);
         localStorage.setItem("interests", JSON.stringify(selectedInterests))
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            // Request access to camera and microphone
-            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-            .then(function(stream) {
-                // Access granted, do something with the stream if needed
-                stream.getTracks()[0].stop();
-                stream.getTracks()[1].stop();
-                router.push("/waitingRoom");
-                console.log('Access to camera and microphone granted!');
-            })
-            .catch(function(error) {
-                // Access denied or error occurred
-                console.error('Error accessing camera and microphone:', error);
-            });
-        } else {
-            // Browser doesn't support WebRTC
-            console.error('WebRTC is not supported in this browser.');
+        if (typeof window !== 'undefined'){
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                // Request access to camera and microphone
+                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then(function(stream) {
+                    // Access granted, do something with the stream if needed
+                    stream.getTracks()[0].stop();
+                    stream.getTracks()[1].stop();
+                    router.push("/waitingRoom");
+                    console.log('Access to camera and microphone granted!');
+                })
+                .catch(function(error) {
+                    // Access denied or error occurred
+                    console.error('Error accessing camera and microphone:', error);
+                });
+            } else {
+                // Browser doesn't support WebRTC
+                console.error('WebRTC is not supported in this browser.');
+            }
         }
     }
     return (

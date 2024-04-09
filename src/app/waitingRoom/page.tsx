@@ -36,18 +36,19 @@ export default function VideoCall(){
     }
     useEffect(() => {      
         if (count.current > 1){
+            console.log("count current > 1");
             return;
         }
         count.current = 2
         const id = v4();
-        setUserId(id);  
+        setUserId(userId => id);  
         const offer: Offer = {
             userId: id,
             profile
         }
         socket.on("found-peer", (roomId:string) => {
             console.log("found peer");
-            setRoomId(roomId);
+            setRoomId(id => roomId);
             router.push("/videoCall");
         });
         socket.emit("match-user", offer);

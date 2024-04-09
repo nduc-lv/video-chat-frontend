@@ -36,13 +36,15 @@ export const RoomProvider = ({children}) => {
         if (!userId){
             return;
         };
-        navigator.mediaDevices.getUserMedia({audio: true, video: true}).
-        then((stream) => {
-            setMyStream(stream);
-        })
-        .catch((err) => {
-            console.log(err);
-        })
+        if (typeof window !== 'undefined'){
+            navigator.mediaDevices.getUserMedia({audio: true, video: true}).
+            then((stream) => {
+                setMyStream(stream);
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+        }
     }, [userId])
     useEffect(() => {
         // only run when the userId change
@@ -52,8 +54,8 @@ export const RoomProvider = ({children}) => {
             return;
         }
         const peer = new Peer(userId, {
-            host: "localhost",
-            port: 9000,
+            host: "peerserver.adaptable.app",
+            port: 443,
             config: {'iceServers': [
                 { url: 'stun:stun1.l.google.com:19302' },
                 { url: 'stun:stun2.l.google.com:19302'}
@@ -68,7 +70,7 @@ export const RoomProvider = ({children}) => {
                     myStream.removeTrack(track);
                 })
                 peer.destroy();
-                setMyPeer(null);
+                setMyPeer(e => null);
                 checkInRoom.current = false; 
                 console.log("close")
                 router.push("/endCall");
@@ -76,9 +78,12 @@ export const RoomProvider = ({children}) => {
             callSave.current.on("stream", (incomingStream) => {
                 setPeerStream(incomingStream);
             })
+            console.log("this guy answer", peer);
             callSave.current.answer(myStream);
         })
-        setMyPeer(peer);
+        console.log("set call listener event", Date.now());
+        console.log();
+        setMyPeer(e => peer);
     }, [myStream]);
     // stream
     useEffect(() => {
@@ -95,30 +100,32 @@ export const RoomProvider = ({children}) => {
         // call peer
         // need be call first before emit
         socket.on("user-connected", (peerId) => {
-            console.log("call");
-            console.log("this guy");
-            callSave.current = myPeer.call(peerId, myStream);
-            if (!callSave.current){
-                console.log(myPeer.call(peerId, myStream))
-            }
-            console.log(callSave.current);
-            // console.log(callSave.current.dataChannel);
-            callSave.current.on("close", () => {
-                myStream.getTracks().forEach((track) => {
-                    track.stop();
-                    myStream.removeTrack(track);
+            setTimeout(() =>{
+                callSave.current = myPeer.call(peerId, myStream);
+                console.log("call peer", Date.now());
+                if (!callSave.current){
+                    console.log(myPeer.call(peerId, myStream))
+                }
+                console.log(callSave.current);
+                // console.log(callSave.current.dataChannel);
+                callSave.current.on("close", () => {
+                    myStream.getTracks().forEach((track) => {
+                        track.stop();
+                        myStream.removeTrack(track);
+                    })
+                    setMyPeer(e => null);
+                    myPeer.destroy();
+                    checkInRoom.current = false;
+                    console.log("close");
+                    router.push("/endCall");
                 })
-                setMyPeer(null);
-                myPeer.destroy();
-                checkInRoom.current = false;
-                console.log("close");
-                router.push("/endCall");
-            })
-            setDataChannel(callSave.current.dataChannel);
-            // console.log(myStream.getTracks());
-            callSave.current.on("stream", (incomingStream) => {
-                setPeerStream(incomingStream);
-            })
+                setDataChannel(callSave.current.dataChannel);
+                // console.log(myStream.getTracks());
+                callSave.current.on("stream", (incomingStream) => {
+                    setPeerStream(incomingStream);
+                })
+
+            }, 1000);
         })
         
         return () => {

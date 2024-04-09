@@ -26,6 +26,9 @@ export default function Controls({setShare, share,width, height}:any) {
         }
         else {
             // turn on camera
+            if (typeof navigator === 'undefined') {
+                return;
+            }
             navigator.mediaDevices.getUserMedia({video: true})
             .then((stream) => {
                 myStream?.addTrack(stream.getVideoTracks()[0]);
