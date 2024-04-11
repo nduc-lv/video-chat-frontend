@@ -14,7 +14,7 @@ export default function WatchTogether({roomId}:any){
     const h1 = useRef();
     useEffect(() => {
         socket.on("found-video", (videoId) => {
-            setVideoId(e => videoId);
+            setVideoId((e:any) => videoId);
         });
         return () => {
             socket.off("found-video");
@@ -24,7 +24,7 @@ export default function WatchTogether({roomId}:any){
     }, [])
     const searchByKey = async (q:string|undefined) => {
         try{
-            const data = await axiosInstance.get(`search/?key=${API_KEY}&q=${q}&part=snippet&type=video`);
+            const data = await axiosInstance.get(`search/?key=AIzaSyDBK92kk9RQDIaK4CYs39S21pAzrP4gxq8&q=${q}&part=snippet&type=video&maxResults=50`);
             setResults([...data.data.items])
         }
         catch (e) {

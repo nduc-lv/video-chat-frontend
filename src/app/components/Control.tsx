@@ -14,8 +14,8 @@ export default function Controls({setShare, share,width, height}:any) {
     const [audio, setAudio] = useState<boolean>(true);
     const {call, myStream} = useContext(RoomContext);
     const {roomId} = useContext(RoomContext)
-    const selectAudio = useRef<HTMLElement>()
-    const selectCamera = useRef<HTMLElement>()
+    const selectAudio = useRef<any>()
+    const selectCamera = useRef<any>()
     const toggleCamera = () => {
         if (video){
             // disable camera

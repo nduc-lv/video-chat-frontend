@@ -1,6 +1,6 @@
 
 
-export default function PhoneHang({width, height}){
+export default function PhoneHang({width, height}:any){
     return (
         <>
             <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 me-2" viewBox="0 0 640 512" fill="white">

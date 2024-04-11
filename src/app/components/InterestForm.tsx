@@ -18,7 +18,7 @@ export default function InterestForm({selectedInterests, setInterests, dispatch}
             e.target.classList.toggle("bg-gray-300");
             e.target.classList.toggle("bg-blue-800");
             e.target.classList.toggle("text-white");
-            setInterests(arr => arr.filter((item:any) => {
+            setInterests((arr:any) => arr.filter((item:any) => {
                 return item != (+e.target.dataset.type)
             }))
         }
@@ -30,7 +30,7 @@ export default function InterestForm({selectedInterests, setInterests, dispatch}
             e.target.classList.toggle("bg-gray-300");
             e.target.classList.toggle("bg-blue-800");
             e.target.classList.toggle("text-white");
-            setInterests(arr => [...arr, +e.target.dataset.type]);
+            setInterests((arr:any) => [...arr, +e.target.dataset.type]);
         }
     }
     const next = (e:any) => {
@@ -39,7 +39,7 @@ export default function InterestForm({selectedInterests, setInterests, dispatch}
         }
         console.log(selectedInterests);
         localStorage.setItem("interests", JSON.stringify(selectedInterests))
-        if (typeof window !== 'undefined'){
+        if (typeof navigator !== 'undefined'){
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 // Request access to camera and microphone
                 navigator.mediaDevices.getUserMedia({ video: true, audio: true })

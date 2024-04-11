@@ -22,18 +22,20 @@ interface Offer{
 }
 export default function VideoCall(){
     const router = useRouter();
-    console.log(localStorage);
     const {userId, setUserId, interests, setInterests} = useContext(UserContext);
     const {setRoomId} = useContext(RoomContext);
     const count = useRef(1);
     // condition to re-route to homepage
-    const profile = {
-        name: +localStorage.getItem("name"),
-        gender: +localStorage.getItem("gender"),
-        sexualInterests: +localStorage.getItem("sexualInterest"),
-        language: +localStorage.getItem("language"),
-        interests: JSON.parse(localStorage.getItem("interests"))
-    }
+    const profile = useRef({});
+    useEffect(() => {
+        profile.current = {
+            name: +localStorage.getItem("name"),
+            gender: +localStorage.getItem("gender"),
+            sexualInterests: +localStorage.getItem("sexualInterest"),
+            language: +localStorage.getItem("language"),
+            interests: JSON.parse(localStorage.getItem("interests"))
+        }
+    }, []);
     useEffect(() => {      
         if (count.current > 1){
             console.log("count current > 1");
@@ -44,7 +46,7 @@ export default function VideoCall(){
         setUserId(userId => id);  
         const offer: Offer = {
             userId: id,
-            profile
+            "profile": profile.current
         }
         socket.on("found-peer", (roomId:string) => {
             console.log("found peer");

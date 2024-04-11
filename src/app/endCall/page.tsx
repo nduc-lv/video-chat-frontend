@@ -1,7 +1,6 @@
 'use client'
 import { useContext, useEffect } from "react";
 import { RoomContext } from "../context/RoomContext";
-import { Button } from "antd";
 import { useRouter } from "next/navigation";
 import { UserContext } from "../context/UserContext";
 
@@ -9,12 +8,12 @@ export default function EndCall(){
     const {setMyStream, setRoomId, checkInRoom} = useContext(RoomContext)
     const {setUserId} = useContext(UserContext);
     useEffect(() => {
-        setMyStream(e => null);
-        setRoomId(e => null);
-        setUserId(e => null);
+        setMyStream((e:any) => null);
+        setRoomId((e:any) => null);
+        setUserId((e:any) => null);
         checkInRoom.current = false;
-    });
-    const router = useRouter()
+    },);
+    const router = useRouter();
     return (
         <>
             <div className="flex flex-col h-full items-stretch justify-center items-center text-center px-[30%]">

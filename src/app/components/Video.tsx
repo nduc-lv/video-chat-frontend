@@ -8,7 +8,7 @@ interface Props{
 }
 
 export default function Video({stream, width, muted, height}: Props) {
-    const ref = useRef<HTMLVideoElement>();
+    const ref = useRef<any>();
     useEffect(() => {
         if (ref.current && stream){
             ref.current.srcObject = stream;

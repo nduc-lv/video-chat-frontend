@@ -1,11 +1,10 @@
 'use client'
 import socket from "../utils/socket/socketIndex";
 import { useState, useContext, useEffect, createContext, useRef} from "react";
-import Peer from "peerjs";
+// import Peer from "peerjs";
 import { UserContext } from "./UserContext";
 import { useRouter } from "next/navigation";
 import { MediaConnection } from "peerjs";
-import { Dispatch, SetStateAction } from "react";
 import { MutableRefObject } from "react";
 interface RoomValue{
     myStream: MediaStream | undefined,
@@ -16,10 +15,13 @@ interface RoomValue{
     checkInRoom: MutableRefObject<boolean>,
     setMyStream: any,
 }
-
-export const RoomContext = createContext<RoomValue>({})
-export const RoomProvider = ({children}) => {
-    const [myPeer, setMyPeer] = useState<Peer>();
+let Peer:any;
+if (typeof navigator !== "undefined") {
+    Peer = require("peerjs").default
+}
+export const RoomContext = createContext<any>({})
+export const RoomProvider = ({children}:any) => {
+    const [myPeer, setMyPeer] = useState();
     const [myStream, setMyStream] = useState<MediaStream>();
     const [peerStream, setPeerStream] = useState<MediaStream>();
     const {interests, setInterests, userId, setUserId} = useContext(UserContext);
@@ -36,7 +38,7 @@ export const RoomProvider = ({children}) => {
         if (!userId){
             return;
         };
-        if (typeof window !== 'undefined'){
+        if (typeof navigator !== 'undefined'){
             navigator.mediaDevices.getUserMedia({audio: true, video: true}).
             then((stream) => {
                 setMyStream(stream);
@@ -56,10 +58,33 @@ export const RoomProvider = ({children}) => {
         const peer = new Peer(userId, {
             host: "peerserver.adaptable.app",
             port: 443,
-            config: {'iceServers': [
-                { url: 'stun:stun1.l.google.com:19302' },
-                { url: 'stun:stun2.l.google.com:19302'}
-              ]} 
+            config: {iceServers: [
+                    {url:'stun:stun.l.google.com:19302'},
+                    {url:'stun:stun1.l.google.com:19302'},
+                    {url:'stun:stun2.l.google.com:19302'},
+                    {url:'stun:stun3.l.google.com:19302'},
+                    {url:'stun:stun4.l.google.com:19302'},
+                    {url: "stun:stun.relay.metered.ca:80"},
+                    {   url: "turn:global.relay.metered.ca:80",
+                        username: "4133888f4501dc86e9225127",
+                        credential: "KkpzqFDpkTsODb+r",
+                    },
+                    {
+                        url: "turn:global.relay.metered.ca:80?transport=tcp",
+                        username: "4133888f4501dc86e9225127",
+                        credential: "KkpzqFDpkTsODb+r",
+                    },
+                    {
+                        url: "turn:global.relay.metered.ca:443",
+                        username: "4133888f4501dc86e9225127",
+                        credential: "KkpzqFDpkTsODb+r",
+                    },
+                    {
+                        url: "turns:global.relay.metered.ca:443?transport=tcp",
+                        username: "4133888f4501dc86e9225127",
+                        credential: "KkpzqFDpkTsODb+r",
+                    },
+              ]},
         });
         // listen for other peer's calling
         peer.on("call", (call) => {
@@ -70,7 +95,7 @@ export const RoomProvider = ({children}) => {
                     myStream.removeTrack(track);
                 })
                 peer.destroy();
-                setMyPeer(e => null);
+                setMyPeer((e:any) => undefined);
                 checkInRoom.current = false; 
                 console.log("close")
                 router.push("/endCall");
@@ -113,7 +138,7 @@ export const RoomProvider = ({children}) => {
                         track.stop();
                         myStream.removeTrack(track);
                     })
-                    setMyPeer(e => null);
+                    setMyPeer(e => undefined);
                     myPeer.destroy();
                     checkInRoom.current = false;
                     console.log("close");

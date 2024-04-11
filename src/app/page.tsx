@@ -1,13 +1,7 @@
 "use client"
-import Image from "next/image";
-import {Peer} from "peerjs";
-import { Button } from 'antd';
-import socket from "./utils/socket/socketIndex";
+
 import { useRouter } from "next/navigation";
-import {v4} from "uuid";
-import { useContext, useEffect } from "react";
-import { UserContext} from "./context/UserContext";
-import { RoomContext } from "./context/RoomContext";
+
 
 
 interface Interests{
@@ -21,34 +15,7 @@ interface Offer{
 
 
 export default function Home() {
-  // check if already in a room
   const router = useRouter();
-  // const {userId, setUserId, interests, setInterests} = useContext(UserContext);
-  // const {setRoomId, setMyStream, roomId, myStream} = useContext(RoomContext);
-  // useEffect(() => {
-  //   if (!userId){
-  //     return;
-  //   }
-  //   else{
-  //     const offer: Offer = {
-  //       id: userId,
-  //       interests,
-  //     }
-  //     console.log("my id", userId);
-  //     socket.emit("match-user", offer);
-  //     // change to room id
-  //     socket.on("found-peer", (roomId:string) => {
-  //       setRoomId(roomId);
-  //       router.push("/videoCall");
-  //     });
-  //   }
-  //   return () => {socket.off("found-peer")};
-  // }, [userId])
-  // // move match to another page
-  // const match = () => {
-  //   const id = v4();
-  //   setUserId(id);
-  // }
   return (
     <>
       <div className="flex flex-col h-full items-stretch justify-center items-center text-center px-[30%]">

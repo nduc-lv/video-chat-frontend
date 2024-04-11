@@ -1,6 +1,6 @@
 import Card from "antd/es/card/Card";
 import Image from "next/image";
-export default function YoutubeVideoCard({videoId, snippet}){
+export default function YoutubeVideoCard({videoId, snippet}:any){
     return (
         <>
     <Card style={{backgroundColor:"#151B24"}} bodyStyle={{padding: "0", borderColor:"none", display:"flex", flexDirection:"column"}} hoverable={true}>

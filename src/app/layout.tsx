@@ -21,7 +21,6 @@ export default function RootLayout({
       <RoomProvider>
         <html lang="en">
         <body className={inter.className}>{children}</body>
-        
         </html>
     </RoomProvider>
     </UserProvider>
