@@ -25,6 +25,7 @@ export default function VideoCall(){
     const {userId, setUserId, interests, setInterests} = useContext(UserContext);
     const {setRoomId} = useContext(RoomContext);
     const count = useRef(1);
+    const id = useRef("");
     // condition to re-route to homepage
     const profile = useRef({});
     useEffect(() => {
@@ -36,25 +37,60 @@ export default function VideoCall(){
             interests: JSON.parse(localStorage.getItem("interests"))
         }
     }, []);
-    useEffect(() => {      
-        if (count.current > 1){
-            console.log("count current > 1");
-            return;
+    useEffect(() => {   
+        if (count.current == 1){
+            id.current = v4();   
         }
-        count.current = 2
-        const id = v4();
-        setUserId(userId => id);  
         const offer: Offer = {
-            userId: id,
+            userId: id.current,
             "profile": profile.current
         }
+        // check for connection to peerjs server
+        socket.on("peer-success", () => {
+            // create an offer
+            console.log("connected to peerjs server")
+            // send offer
+            socket.emit("match-user", offer);
+        })
+        socket.on("peer-fail", () => {
+            console.log("unable to connect to peerjs server")
+        })
+
+        // check for connection to other peer
+        socket.on("connection-ebstablished", () => {
+            console.log("successfully ebstablished connection");
+            // try to reconnect
+            router.push("/videoCall")
+        })
+        socket.on("connection-failed", () => {
+            console.log("connection-failed, reconnect");
+            socket.emit("reconnect", socket.id);
+        })
+
+        // set userID -> start myStream -> create peerjs server connection
+        if (count.current == 1){
+            setUserId(userId => id.current);  
+        }
+        // if found a peer
         socket.on("found-peer", (roomId:string) => {
             console.log("found peer");
             setRoomId(id => roomId);
-            router.push("/videoCall");
+            // join room
+            socket.on("reconnect", () => {
+                socket.emit("join-room", roomId, id.current);
+            })
+            socket.emit("join-room", roomId, id.current);
         });
-        socket.emit("match-user", offer);
+        count.current = 2
         // change to room id
+        return (() => {
+            socket.off("peer-fail");
+            socket.off("peer-success");
+            socket.off("found-peer");
+            socket.off("connection-ebstablished");
+            socket.off("connection-failed");
+            socket.off("reconnect");
+        })
   }, [])
   // move match to another page
     return(

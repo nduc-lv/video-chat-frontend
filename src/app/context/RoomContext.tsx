@@ -64,30 +64,43 @@ export const RoomProvider = ({children}:any) => {
                     {url:'stun:stun2.l.google.com:19302'},
                     {url:'stun:stun3.l.google.com:19302'},
                     {url:'stun:stun4.l.google.com:19302'},
-                    {url: "stun:stun.relay.metered.ca:80"},
-                    {   url: "turn:global.relay.metered.ca:80",
+                    {
+                        url: "stun:stun.relay.metered.ca:80",
+                      },
+                      {
+                        url: "turn:standard.relay.metered.ca:80",
                         username: "4133888f4501dc86e9225127",
                         credential: "KkpzqFDpkTsODb+r",
-                    },
-                    {
-                        url: "turn:global.relay.metered.ca:80?transport=tcp",
+                      },
+                      {
+                        url: "turn:standard.relay.metered.ca:80?transport=tcp",
                         username: "4133888f4501dc86e9225127",
                         credential: "KkpzqFDpkTsODb+r",
-                    },
-                    {
-                        url: "turn:global.relay.metered.ca:443",
+                      },
+                      {
+                        url: "turn:standard.relay.metered.ca:443",
                         username: "4133888f4501dc86e9225127",
                         credential: "KkpzqFDpkTsODb+r",
-                    },
-                    {
-                        url: "turns:global.relay.metered.ca:443?transport=tcp",
+                      },
+                      {
+                        url: "turns:standard.relay.metered.ca:443?transport=tcp",
                         username: "4133888f4501dc86e9225127",
                         credential: "KkpzqFDpkTsODb+r",
                     },
               ]},
         });
+        peer.on("open", () => {
+            console.log("peer-success");
+            socket.emit("peer-success", socket.id);
+        })
+        peer.on("error", () => {
+            console.log("peer-fail");
+            socket.emit("peer-fail");
+        })
         // listen for other peer's calling
         peer.on("call", (call) => {
+            console.log("received call")
+            socket.emit("connection-ebstablished", socket.id);
             callSave.current = call;
             call.on("close", () => {
                 myStream?.getTracks().forEach((track) => {
@@ -106,8 +119,6 @@ export const RoomProvider = ({children}:any) => {
             console.log("this guy answer", peer);
             callSave.current.answer(myStream);
         })
-        console.log("set call listener event", Date.now());
-        console.log();
         setMyPeer(e => peer);
     }, [myStream]);
     // stream
@@ -122,16 +133,20 @@ export const RoomProvider = ({children}:any) => {
             return;
         }
         // })
-        // call peer
-        // need be call first before emit
+        // after an user join-room -> call that user
         socket.on("user-connected", (peerId) => {
+            console.log("done matching, now calling...")
             setTimeout(() =>{
                 callSave.current = myPeer.call(peerId, myStream);
-                console.log("call peer", Date.now());
-                if (!callSave.current){
-                    console.log(myPeer.call(peerId, myStream))
-                }
-                console.log(callSave.current);
+                callSave.current.on("error", () => {
+                    socket.emit("connection-failed", socket.id);
+                })
+                callSave.current.on("stream", () => {
+                    socket.emit("connection-ebstablished",socket.id);
+                })
+                // if (!callSave.current){
+                //     console.log(myPeer.call(peerId, myStream))
+                // }
                 // console.log(callSave.current.dataChannel);
                 callSave.current.on("close", () => {
                     myStream.getTracks().forEach((track) => {
@@ -149,7 +164,6 @@ export const RoomProvider = ({children}:any) => {
                 callSave.current.on("stream", (incomingStream) => {
                     setPeerStream(incomingStream);
                 })
-
             }, 1000);
         })
         

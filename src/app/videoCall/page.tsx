@@ -34,7 +34,6 @@ export default function VideoCall(){
             return;
         }
         if (checkInRoom.current == false){
-            socket.emit("join-room", roomId, userId);
             checkInRoom.current = true;
             socket.on("sharing", () => {
                 setShare(a => !a);
