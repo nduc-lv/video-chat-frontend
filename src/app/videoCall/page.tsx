@@ -15,6 +15,7 @@ import VideosCanva from "../components/VideoCanvaFull";
 import Controls from "../components/Control";
 import VideoSharingCanva from "../components/VideoSharingCanva";
 import WatchTogether from "../components/WatchTogether";
+import ChatSection from "../components/ChatSection";
 // get peer Id
 
 // const peer = new Peer(undefined, {host:"/", port: "9000"});
@@ -60,20 +61,25 @@ export default function VideoCall(){
             {share == true ? 
             <div className="h-screen flex flex-row">
                 {/* <iframe src={`http://localhost:3000/watchTogether/${roomId}`} width="auto" className="grow"></iframe> */}
-                <div style={{width: "80vw"}}>
+                <div style={{width: "75vw"}}>
                     <WatchTogether roomId={roomId}></WatchTogether>
                 </div>
-                <div style={{ backgroundColor:"#19202A"}} className="flex flex-col justify-start items-center grow">
-                    <div style={{width: "20vw"}}>
+                <div style={{ backgroundColor:"#19202A"}} className="flex flex-col justify-between items-end grow">
+                    <div style={{width:"20vw"}}>
                         <Video stream={peerStream} muted={false} width={"100%"} height={"100px"}></Video>
+                    </div>
+                    {/* chat section */}
+                    <div style={{width: "23vw"}}>
+                        <ChatSection roomId={roomId} socket={socket} userId={userId}></ChatSection>
                     </div>
                 </div>
                 {/* other peer */}
             </div> : 
-            <VideosCanva myStream={myStream} peerStream={peerStream} width={"100%"}></VideosCanva>
+            
+                <VideosCanva myStream={myStream} peerStream={peerStream} width={"100%"}></VideosCanva>
             }
             <div className="absolute top-[90%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <Controls setShare={setShare} share={share} width={"2rem"} height={"2rem"}></Controls>
+                        <Controls setShare={setShare} share={share} width={"2rem"} height={"2rem"}></Controls>
             </div>
     </div>
     )

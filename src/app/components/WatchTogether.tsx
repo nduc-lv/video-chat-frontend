@@ -37,16 +37,16 @@ export default function WatchTogether({roomId}:any){
     return(
         <>
         <div className="flex flex-row h-screen" style={{backgroundColor:"#19202A", width:"100%"}}>
-            <div className="overflow-y-auto no-scrollbar" style={{width:"325"}}>
+            <div className="overflow-y-auto no-scrollbar" style={{minWidth:"325", width: "25vw"}}>
             <Search
-                placeholder="input search text"
+                placeholder="Search for youtube videos"
                 allowClear
                 onSearch={onSearch}
-                style={{ width: 304,  top: 0, position:"sticky", zIndex:1}}
+                style={{ width: 320,  top: 0, position:"sticky", zIndex:1}}
             ></Search>
                 {results == null || <YoutubeVideos items={results} setVideoID={setVideoId} roomId={roomId}></YoutubeVideos>}
             </div>
-            <div className="grow" style={{marginTop:"20px"}}>
+            <div className="grow" style={{marginTop:"20px", marginLeft: "3vw"}}>
                 {videoId == null || <YoutubeVideoPlayer videoId={videoId} roomId={roomId} socket={socket}></YoutubeVideoPlayer>}
             </div>
         </div>

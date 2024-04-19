@@ -14,6 +14,7 @@ interface RoomValue{
     setRoomId: any,
     checkInRoom: MutableRefObject<boolean>,
     setMyStream: any,
+    setConnect: any,
 }
 let Peer:any;
 if (typeof navigator !== "undefined") {
@@ -24,6 +25,7 @@ export const RoomProvider = ({children}:any) => {
     const [myPeer, setMyPeer] = useState();
     const [myStream, setMyStream] = useState<MediaStream>();
     const [peerStream, setPeerStream] = useState<MediaStream>();
+    const [isConnect, setConnect] = useState(false);
     const {interests, setInterests, userId, setUserId} = useContext(UserContext);
     const [dataChannel, setDataChannel] = useState<RTCDataChannel | undefined>();
     const [roomId, setRoomId] = useState<string | undefined>();
@@ -53,6 +55,9 @@ export const RoomProvider = ({children}:any) => {
         // create peer connection to the peer server
         console.log("connect to peer server and get media")
         if (!myStream){
+            return;
+        }
+        if (!isConnect){
             return;
         }
         const peer = new Peer(userId, {
@@ -87,14 +92,14 @@ export const RoomProvider = ({children}:any) => {
                         username: "4133888f4501dc86e9225127",
                         credential: "KkpzqFDpkTsODb+r",
                     },
-              ]},
+              ]}
         });
         peer.on("open", () => {
             console.log("peer-success");
             socket.emit("peer-success", socket.id);
         })
-        peer.on("error", () => {
-            console.log("peer-fail");
+        peer.on("error", (err) => {
+            console.log("peer-fail", err);
             socket.emit("peer-fail");
         })
         // listen for other peer's calling
@@ -120,7 +125,7 @@ export const RoomProvider = ({children}:any) => {
             callSave.current.answer(myStream);
         })
         setMyPeer(e => peer);
-    }, [myStream]);
+    }, [myStream, isConnect]);
     // stream
     useEffect(() => {
         // run when peer and stream change (set is invoked)
@@ -139,6 +144,7 @@ export const RoomProvider = ({children}:any) => {
             setTimeout(() =>{
                 callSave.current = myPeer.call(peerId, myStream);
                 callSave.current.on("error", () => {
+                    console.log("something went wrong")
                     socket.emit("connection-failed", socket.id);
                 })
                 callSave.current.on("stream", () => {
@@ -181,6 +187,7 @@ export const RoomProvider = ({children}:any) => {
             setRoomId,
             checkInRoom,
             setMyStream,
+            setConnect
         }}>
             {children}
         </RoomContext.Provider>

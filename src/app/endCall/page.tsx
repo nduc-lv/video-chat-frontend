@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { UserContext } from "../context/UserContext";
 
 export default function EndCall(){
-    const {setMyStream, setRoomId, checkInRoom} = useContext(RoomContext)
+    const {setMyStream, setRoomId, checkInRoom, setConnect} = useContext(RoomContext)
     const {setUserId} = useContext(UserContext);
     useEffect(() => {
         setMyStream((e:any) => null);
         setRoomId((e:any) => null);
         setUserId((e:any) => null);
+        setConnect((e:any) => false);
         checkInRoom.current = false;
     },);
     const router = useRouter();

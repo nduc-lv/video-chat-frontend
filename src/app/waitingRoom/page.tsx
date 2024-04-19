@@ -23,14 +23,14 @@ interface Offer{
 export default function VideoCall(){
     const router = useRouter();
     const {userId, setUserId, interests, setInterests} = useContext(UserContext);
-    const {setRoomId} = useContext(RoomContext);
+    const {setRoomId, setConnect} = useContext(RoomContext);
     const count = useRef(1);
     const id = useRef("");
     // condition to re-route to homepage
     const profile = useRef({});
     useEffect(() => {
         profile.current = {
-            name: +localStorage.getItem("name"),
+            name: localStorage.getItem("name"),
             gender: +localStorage.getItem("gender"),
             sexualInterests: +localStorage.getItem("sexualInterest"),
             language: +localStorage.getItem("language"),
@@ -46,12 +46,6 @@ export default function VideoCall(){
             "profile": profile.current
         }
         // check for connection to peerjs server
-        socket.on("peer-success", () => {
-            // create an offer
-            console.log("connected to peerjs server")
-            // send offer
-            socket.emit("match-user", offer);
-        })
         socket.on("peer-fail", () => {
             console.log("unable to connect to peerjs server")
         })
@@ -64,22 +58,33 @@ export default function VideoCall(){
         })
         socket.on("connection-failed", () => {
             console.log("connection-failed, reconnect");
+            setConnect(e => false);
             socket.emit("reconnect", socket.id);
         })
 
-        // set userID -> start myStream -> create peerjs server connection
+        // set userID -> start myStream
         if (count.current == 1){
+            socket.emit("match-user", offer);
             setUserId(userId => id.current);  
         }
         // if found a peer
-        socket.on("found-peer", (roomId:string) => {
+        socket.on("found-peer", (roomId:string, name:string) => {
+            socket.on("peer-success", () => {
+                // create an offer
+                console.log("connected to peerjs server");
+                socket.emit("join-room", roomId, id.current);
+            })
+            setConnect(e => true);
             console.log("found peer");
+            if (localStorage){
+                console.log("peer name", name);
+                localStorage.setItem("peerName", name);
+            }
             setRoomId(id => roomId);
             // join room
             socket.on("reconnect", () => {
-                socket.emit("join-room", roomId, id.current);
-            })
-            socket.emit("join-room", roomId, id.current);
+                setConnect(e => true);
+            });
         });
         count.current = 2
         // change to room id

@@ -44,3 +44,125 @@ html{
       scrollbar-width: none;  /* Firefox */
 }
 }
+@layer components{
+  main {
+      padding: 10px;
+      height: 80%;
+      overflow-y: scroll;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid black;
+      background-color: #282c34;
+      box-sizing: border-box;
+  }
+    
+  main::-webkit-scrollbar {
+    width: 0.25rem;
+  }
+    
+  main::-webkit-scrollbar-track {
+    background: #1e1e24;
+  }
+    
+  main::-webkit-scrollbar-thumb {
+    background: #6649b8;
+  }
+    
+  .chat-form {
+    bottom: 0;
+    background-color: rgb(24, 23, 23);
+    box-sizing: border-box;
+    width: 100%;
+    height: 10%;
+    display: flex;
+    font-size: 1rem;
+  }
+    
+  .chat-form button {
+    background-color: rgb(56, 56, 143);
+  }
+    
+    
+  .chat-input {
+    border: 1px solid black;
+    min-height: 40px;
+    background: rgb(58, 58, 58);
+    color: white;
+    outline: none;
+    border: none;
+    padding: 0 10px;
+    width: 80%;
+  }
+    
+  .chat-button {
+      box-sizing: border-box;
+      background-color: #282c34; 
+      border: none;
+      color: white;
+      padding: 10px 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+      font-size: 1.25rem;
+      width: 20%;
+  }
+    
+  .chat-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+    
+    
+  ul, li {
+    text-align: left;
+    list-style: none;
+  }
+    
+  .chat-text {
+    border: 1px solid black;
+    max-width: 18vw;
+    margin-bottom: 12px;
+    line-height: 24px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    color: white;
+    text-align: left;
+    word-wrap: break-word;
+    text-align-last: left;
+  }
+    
+  .message {
+    display: flex;
+    align-items: center;
+  }
+    
+    
+  .sent {
+    flex-direction: row-reverse;
+  }
+    
+  .sent p {
+      color: white;
+      background: #0b93f6;
+      align-self: flex-end;
+  }
+  .received p {
+      background: #e5e5ea;
+      color: black;
+  }
+  .header{
+    background-color: #181717;
+    height: 10%;
+    color: white;
+    width: 100%;
+    max-width: 728px;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 99;
+    box-sizing: border-box;
+    padding-left: 10px;
+  }
+}
