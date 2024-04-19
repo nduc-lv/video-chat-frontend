@@ -24,7 +24,7 @@ export default function WatchTogether({roomId}:any){
     }, [])
     const searchByKey = async (q:string|undefined) => {
         try{
-            const data = await axiosInstance.get(`search/?key=AIzaSyDBK92kk9RQDIaK4CYs39S21pAzrP4gxq8&q=${q}&part=snippet&type=video&maxResults=50`);
+            const data = await axiosInstance.get(`search/?key=${API_KEY}&q=${q}&part=snippet&type=video&maxResults=50`);
             setResults([...data.data.items])
         }
         catch (e) {
