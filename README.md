@@ -22,7 +22,7 @@ Run the app in the production mode. (Visit: http://localhost:3000)
 `$ npm start`
 
 ## Notable feature
-- **Watch Together**: Two users in the same room can watch YouTube videos with others. Watch Together can handle video syncing for each users - no counting down to pressing play.
+- **Watch Together**: Two users in the same room can watch YouTube videos with others. Watch Together can handle video syncing for each user - no counting down to pressing play.
 
 ## Demos
 [demo-bob-view.webm](https://github.com/nduc-lv/front-end/assets/96325115/ae52db05-fd2a-4ab0-83e5-9f70885aebe2)
