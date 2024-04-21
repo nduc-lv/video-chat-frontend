@@ -3,7 +3,7 @@
 import {useState, useEffect} from "react"
 import interests from "../utils/listOfInterest"
 import { useRouter } from "next/navigation";
-export default function InterestForm({selectedInterests, setInterests, dispatch}:any){
+export default function InterestForm({selectedInterests, setInterests, dispatch, prevPage, nextPage}:any){
     const listOfInterests = interests;
     const router = useRouter();
     const handleOnClick = (e:any) => {
@@ -60,6 +60,9 @@ export default function InterestForm({selectedInterests, setInterests, dispatch}
             }
         }
     }
+    const prev = (e: any) => {
+        dispatch({type: prevPage})
+    }
     return (
         <>
             <div className="flex flex-col h-full items-stretch justify-center items-center text-center px-52">
@@ -78,7 +81,10 @@ export default function InterestForm({selectedInterests, setInterests, dispatch}
                        })}
                     </div>
                     
-                    <div>
+                    <div className="flex justify-center gap-2.5 items-center ">
+                    {(!prevPage) ||
+                        <button  onClick={prev} className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Back</button>
+                    }
                     <button  onClick={next} className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Next</button>
                     </div>
                 </div>

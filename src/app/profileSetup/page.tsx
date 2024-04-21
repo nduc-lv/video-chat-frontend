@@ -19,11 +19,11 @@ export default function ProfileSetup(){
     console.log(name);
     return(
         <>
-            { !(state=="name") || <NameForm setName={setName} name={name} dispatch={dispatch}></NameForm>}
-            { !(state=="age") || <AgeForm setAgeGroup={setAgeGroup} ageGroup={ageGroup} dispatch={dispatch}></AgeForm>}
-            {!(state=="gender") || <GenderForm setGender={setGender} gender={gender} dispatch={dispatch} sexualInterest={genderInterest} setSexualInterest={setGenderInterest}></GenderForm>}
-            {!(state == "language") || <LanguageForm language={language} setLanguage={setLanguage} dispatch={dispatch}></LanguageForm>}
-            {!(state =="interests") || <InterestForm selectedInterests={selectedInterests} setInterests={setInterests} dispatch={dispatch}></InterestForm>}
+            { !(state=="name") || <NameForm setName={setName} name={name} dispatch={dispatch} nextPage = {"age"}></NameForm>}
+            { !(state=="age") || <AgeForm setAgeGroup={setAgeGroup} ageGroup={ageGroup} dispatch={dispatch} nextPage = {"gender"} prevPage = {"name"}> </AgeForm>}
+            {!(state=="gender") || <GenderForm setGender={setGender} gender={gender} dispatch={dispatch} nextPage = {"language"} prevPage = {"age"} sexualInterest={genderInterest} setSexualInterest={setGenderInterest}></GenderForm>}
+            {!(state == "language") || <LanguageForm language={language} setLanguage={setLanguage} dispatch={dispatch} nextPage = {"interests"} prevPage = {"gender"}></LanguageForm>}
+            {!(state =="interests") || <InterestForm selectedInterests={selectedInterests} setInterests={setInterests} dispatch={dispatch} prevPage = {"language"}></InterestForm>}
         </>
     )
 }
