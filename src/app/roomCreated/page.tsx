@@ -1,5 +1,5 @@
 'use client'
-import { useContext, useEffect, useRef, useState} from "react"
+import { useReducer, useContext, useEffect, useRef, useState} from "react"
 import Video from "../components/Video"
 import { RoomContext } from "../context/RoomContext"
 import { UserContext } from "../context/UserContext"
@@ -8,6 +8,10 @@ import { useRouter } from "next/navigation"
 import {v4} from "uuid"
 import PersonalControl from "../components/PersonalControl"
 import WatchTogether from "../components/WatchTogether"
+import {Modal} from "antd"
+import Requests from "../components/Requests"
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 export default function RoomCreated() {
     const {myStream, setConnect} = useContext(RoomContext); 
     const {userId, setUserId} = useContext(UserContext);
@@ -18,6 +22,39 @@ export default function RoomCreated() {
     const profile = useRef({});
     const [requests, setRequests] = useState<any>([]);
     const [watchYoutube, setWatchYoutube] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
+    const stateReducer = (state:any, action: {type: string}) => {
+        switch (action.type) {
+          case "none": {
+            return "none" 
+          }
+          case "declined": {
+            return "declined"
+          }
+          case "accepted":{
+              return "accepted"
+          }
+        }
+        throw Error('Unknown action: ' + action.type);
+      }
+    const [requestState, dispatch] = useReducer(stateReducer, "none");
+    const showModal = () => {
+      setOpen(true);
+    };
+  
+    const handleOk = () => {
+      setLoading(true);
+      setTimeout(() => {
+        setLoading(false);
+        setOpen(false);
+      }, 3000);
+    };
+  
+    const handleCancel = () => {
+      setOpen(false);
+      dispatch({type: "none"})
+    };
     const accept = (e:any) => {
         e.preventDefault();
         const socketId = e.target.dataset.socketid;
@@ -25,13 +62,16 @@ export default function RoomCreated() {
         if (localStorage){
             name = localStorage.getItem("name");
         }
+        dispatch({type: "accepted"})
         socket.emit("request-accepted", socketId, roomId,name);
         socket.emit("found-peer", socket.id, roomId, e.target.dataset.name)
     }
     const decline = (e:any) => {
         e.preventDefault();
-        socket.emit("decline-user");
-        setRequests(e => e.splice(e.target.dataset.index, 1))
+        socket.emit("decline-user", requests[e.target.dataset.index].socketId);
+        console.log(e.target.dataset.index);
+        dispatch({type: "declined"})
+        setRequests(req => {req.splice(e.target.dataset.index, 1); return [...req]})
     }
     useEffect(() => {
         profile.current = {
@@ -70,6 +110,8 @@ export default function RoomCreated() {
             // if accept -> send to the server, server emit the found-peer event
             // if decline -> send to the server, server send to the other user
             // notify
+            toast("New request")
+            console.log("there is a new request")
             setRequests([...requests, request])
         })
         // set userID -> start myStream
@@ -109,6 +151,7 @@ export default function RoomCreated() {
   }, [])
     return(
         <div className="relative bg-black">
+            <ToastContainer />
             {watchYoutube == false ? 
             (<div className="w-screen flex flex-row h-screen flex-wrap justify-center items-center">
                 <div className="basis-112">
@@ -121,7 +164,7 @@ export default function RoomCreated() {
             </div>
             <div style={{ backgroundColor:"#19202A"}} className="flex flex-col justify-between items-end grow">
                 <div style={{width:"20vw"}}>
-                    <Video stream={myStream} muted={false} width={"100%"} height={"100px"}></Video>
+                    <Video stream={myStream} muted={true} width={"100%"} height={"100px"}></Video>
                 </div>
                 {/* chat section */}
             </div>
@@ -129,24 +172,27 @@ export default function RoomCreated() {
             </div>
             }
             <div className="absolute top-[90%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <PersonalControl setWatchYoutube={setWatchYoutube}></PersonalControl>
+                <PersonalControl setWatchYoutube={setWatchYoutube} setOpen = {setOpen} socket={socket}></PersonalControl>
             </div>
-            {(!requests) || requests.map((e, index) => {
-                return (
-                    <div key={index}>
-                        {/* add requests socket id */}
-                        <div>
-                            {e.name} wants to join
-                        </div>
-                        <div onClick = {accept} data-socketid = {e.socketId} data-name = {e.name}>
-                            Accept
-                        </div>
-                        <div onClick = {decline} data-index = {index}>
-                            Decline
-                        </div>
-                    </div>
-                )
-            })}
+            <Modal
+                open={open}
+                title="Requests"
+                onOk={handleOk}
+                onCancel={handleCancel}
+                footer={null}
+            >
+                {!(requestState == "none") || 
+                    <Requests requests = {requests} accept = {accept} decline = {decline}></Requests>
+                }
+                {!(requestState == "accepted") || 
+                <div>
+                    Request accepted, joining room...
+                </div>}
+                {!(requestState == "declined") || 
+                <div>
+                    Request declined.
+                </div>}
+            </Modal>
         </div>
     )
 }

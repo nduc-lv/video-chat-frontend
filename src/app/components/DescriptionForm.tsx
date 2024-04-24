@@ -64,7 +64,7 @@ export default function DescriptionForm({setDescription, description, dispatch, 
                     <div className="my-8">
                         <div className="text-4xl">Say something about your room</div>
                     </div>
-                    <div className="flex justify-center items-center">
+                    <div className="flex justify-center items-center my-8">
                         {/* <input onChange={getName} type="text" id="first_name" className="my-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-3/4 p-2.5" placeholder="John" required /> */}
                         <TextArea
                                 value={description}
@@ -73,7 +73,7 @@ export default function DescriptionForm({setDescription, description, dispatch, 
                                 autoSize={{ minRows: 3, maxRows: 9 }}
                         />
                     </div>
-                    <div className="my-8">
+                    <div className="my-8 hidden">
                         <div className="text-4xl my-8">Set Visibility</div>
                         {groups.map((gender, index) => {
                         return (
