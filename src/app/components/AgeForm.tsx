@@ -1,7 +1,7 @@
 'use client'
 
 import {Select} from "antd";
-export default function AgeForm({setAgeGroup, ageGroup, dispatch}:any){
+export default function AgeForm({setAgeGroup, ageGroup, dispatch, prevPage, nextPage}:any){
     const groups = ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"]
     const options = groups.map((label, value) => {
         return {
@@ -19,7 +19,10 @@ export default function AgeForm({setAgeGroup, ageGroup, dispatch}:any){
         }
         console.log(ageGroup)
         localStorage.setItem("ageGroup", ageGroup);
-        dispatch({type: "genderForm"});
+        dispatch({type: nextPage});
+    }
+    const prev = (e: any) => {
+        dispatch({type: prevPage})
     }
     return (
         <>
@@ -37,7 +40,10 @@ export default function AgeForm({setAgeGroup, ageGroup, dispatch}:any){
                             options={options}
                         />
                     </div>
-                    <div>
+                    <div className="flex justify-center gap-2.5 items-center ">
+                    {(!prevPage) ||
+                        <button  onClick={prev} className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Back</button>
+                    }
                     <button  onClick={next} className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Next</button>
                     </div>
                 </div>

@@ -2,7 +2,7 @@
 
 
 import { Input } from "antd";
-export default function NameForm({setName, name, dispatch}:any){
+export default function NameForm({setName, name, dispatch, nextPage, prevPage}:any){
 
     const getName = (e:any) => {
         setName(e.target.value)
@@ -11,8 +11,13 @@ export default function NameForm({setName, name, dispatch}:any){
         if (!name){
             return;
         }
-        localStorage.setItem("name", name);
-        dispatch({type: "ageForm"});
+        if (nextPage){
+            localStorage.setItem("name", name);
+            dispatch({type: nextPage});
+        }
+    }
+    const prev = (e: any) => {
+        dispatch({type: prevPage});
     }
     return (
         <>
@@ -25,7 +30,10 @@ export default function NameForm({setName, name, dispatch}:any){
                         {/* <input onChange={getName} type="text" id="first_name" className="my-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-3/4 p-2.5" placeholder="John" required /> */}
                         <Input placeholder="Enter your name" size={"large"} onChange={getName} className="my-8 w-3/4"/>
                     </div>
-                    <div>
+                    <div className="flex justify-center gap-2.5 items-center ">
+                    {(!prevPage) ||
+                        <button  onClick={prev} className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Back</button>
+                    }
                     <button  onClick={next} className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Next</button>
                     </div>
                 </div>
