@@ -48,9 +48,9 @@ export default function RoomCreated() {
       setTimeout(() => {
         setLoading(false);
         setOpen(false);
-      }, 3000);
-    };
-  
+    }, 3000);
+};
+
     const handleCancel = () => {
       setOpen(false);
       dispatch({type: "none"})
@@ -110,7 +110,8 @@ export default function RoomCreated() {
             // if accept -> send to the server, server emit the found-peer event
             // if decline -> send to the server, server send to the other user
             // notify
-            toast("New request")
+            toast("New request", {autoClose: 10000
+            })
             console.log("there is a new request")
             setRequests([...requests, request])
         })
@@ -151,7 +152,7 @@ export default function RoomCreated() {
   }, [])
     return(
         <div className="relative bg-black">
-            <ToastContainer />
+            <ToastContainer autoClose={false} />
             {watchYoutube == false ? 
             (<div className="w-screen flex flex-row h-screen flex-wrap justify-center items-center">
                 <div className="basis-112">
@@ -160,7 +161,7 @@ export default function RoomCreated() {
             </div>) : 
             <div className="h-screen flex flex-row">
                 <div style={{width: "75vw"}}>
-                <WatchTogether roomId={roomId}></WatchTogether>
+                <WatchTogether roomId={roomId} mode={"alone"}></WatchTogether>
             </div>
             <div style={{ backgroundColor:"#19202A"}} className="flex flex-col justify-between items-end grow">
                 <div style={{width:"20vw"}}>

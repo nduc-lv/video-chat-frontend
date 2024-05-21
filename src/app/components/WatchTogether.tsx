@@ -7,7 +7,7 @@ import YoutubeVideos from "@/app/components/YoutubeVideos";
 import YoutubeVideoPlayer from "@/app/components/YoutubeVideoPlayers";
 import socket from "@/app/utils/socket/socketIndex";
 const {Search} = Input;
-export default function WatchTogether({roomId}:any){
+export default function WatchTogether({roomId, mode}:any){
     const API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
     const [results, setResults] = useState<any>(null);
     const [videoId, setVideoId] = useState<any>(null);
@@ -47,7 +47,7 @@ export default function WatchTogether({roomId}:any){
                 {results == null || <YoutubeVideos items={results} setVideoID={setVideoId} roomId={roomId}></YoutubeVideos>}
             </div>
             <div className="grow" style={{marginTop:"20px", marginLeft: "3vw"}}>
-                {videoId == null || <YoutubeVideoPlayer videoId={videoId} roomId={roomId} socket={socket}></YoutubeVideoPlayer>}
+                {videoId == null || <YoutubeVideoPlayer videoId={videoId} roomId={roomId} socket={socket} mode={mode}></YoutubeVideoPlayer>}
             </div>
         </div>
         </>

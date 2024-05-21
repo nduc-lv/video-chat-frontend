@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import YouTube, {YouTubeProps} from "react-youtube"
 import { useEffect } from "react";
-export default function YoutubeVideoPlayer({videoId, roomId,socket}:any){
+export default function YoutubeVideoPlayer({videoId, roomId,socket, mode}:any){
     let youtubePlayer:any;
     let lastTime = -1;
     let preState = -1;
@@ -15,6 +15,14 @@ export default function YoutubeVideoPlayer({videoId, roomId,socket}:any){
                 youtubePlayer.seekTo(time);
             }
         })
+        if (mode == 'alone'){
+            console.log("set event")
+            socket.on("get-latest", (socketId:string) => {
+                console.log("hi")
+                const timeStamp = youtubePlayer.getCurrentTime();
+                socket.emit("latest-timestamp", timeStamp, socketId)
+            })
+        }
         socket.on('video-stop', () => {
             console.log("video-stop");
             youtubePlayer.pauseVideo();
@@ -24,10 +32,12 @@ export default function YoutubeVideoPlayer({videoId, roomId,socket}:any){
             youtubePlayer.playVideo()
             
         })
-        event.target.pauseVideo();
+        // event.target.pauseVideo();
     }
     useEffect(() => {
+        socket.emit("add-video", socket.id, videoId);
         return () => {
+            socket.emit("remove-video", socket.id);
             if (socket){
                 socket.off("video-seek");
                 socket.off("video-stop");
@@ -49,12 +59,21 @@ export default function YoutubeVideoPlayer({videoId, roomId,socket}:any){
         if (state == 1 || state == 3){
             const timeToSeek = youtubePlayer.getCurrentTime();
             socket.emit("video-play", roomId);
+            if (mode && mode == "alone") {
+                socket.emit("alone-video-play", socket.id)
+            }
             console.log("this is current time", timeToSeek);
             // send this info to other guy
             if (preState == 3 && state == 1){
+                if (mode && mode == "alone") {
+                    socket.emit("alone-video-seek", socket.id, timeToSeek)
+                }
                 socket.emit("video-seek", roomId, timeToSeek);
             }
             if (Math.abs(timeToSeek - lastTime) >= 1){
+                if (mode && mode == "alone") {
+                    socket.emit("alone-video-seek", socket.id, timeToSeek)
+                }
                 socket.emit("video-seek", roomId, timeToSeek);
             }
             lastTime = timeToSeek;
@@ -62,6 +81,9 @@ export default function YoutubeVideoPlayer({videoId, roomId,socket}:any){
         else if (state == 2){
             console.log("youtube stop");
             // signal this to other user
+            if (mode && mode=="alone"){
+                socket.emit("alone-video-stop", socket.id)
+            }
             socket.emit("video-stop", roomId);
         }
         preState = state;

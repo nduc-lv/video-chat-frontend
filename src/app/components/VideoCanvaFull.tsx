@@ -5,9 +5,10 @@ interface Props{
     width:string,
     peerStream:MediaStream,
     height:string
+    toggle: boolean
 }
 
-export default function VideosCanva({myStream, width, peerStream}:Props){
+export default function VideosCanva({myStream, width, peerStream, toggle}:Props){
     return (
         <>
             <div className="w-screen flex flex-row h-screen flex-wrap justify-center items-center">
@@ -15,7 +16,7 @@ export default function VideosCanva({myStream, width, peerStream}:Props){
                     <Video stream={myStream} width={width} muted={true} height={"100%"}></Video>
                 </div>
                 <div className="basis-96 grow">
-                    <Video stream={peerStream} width={width} muted={false} height={"100%"}></Video>
+                    <Video stream={peerStream} toggle={toggle} width={width} muted={false} height={"100%"}></Video>
                 </div>
             </div>
         </>

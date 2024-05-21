@@ -73,7 +73,7 @@ export default function DescriptionForm({setDescription, description, dispatch, 
                                 autoSize={{ minRows: 3, maxRows: 9 }}
                         />
                     </div>
-                    <div className="my-8 hidden">
+                    <div className="my-8">
                         <div className="text-4xl my-8">Set Visibility</div>
                         {groups.map((gender, index) => {
                         return (
