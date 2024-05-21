@@ -10,14 +10,7 @@ import { useCollectionData } from 'react-firebase-hooks/firestore';
 import socket from "../utils/socket/socketIndex";
 firebase.initializeApp({
     // your config
-    apiKey: "AIzaSyC3sWpSpiPoUDvo5lT1eQ1_vq3MnG9zI8k",
-    authDomain: "peerchat-b33b0.firebaseapp.com",
-    databaseURL: "https://peerchat-b33b0-default-rtdb.firebaseio.com",
-    projectId: "peerchat-b33b0",
-    storageBucket: "peerchat-b33b0.appspot.com",
-    messagingSenderId: "877499833610",
-    appId: "1:877499833610:web:116dfdcb464ef66d342ef3",
-    measurementId: "G-1BGM0Q994D"
+    
 })
 
 const auth = firebase.auth();
