@@ -20,6 +20,7 @@ import type { MenuProps } from 'antd';
 import {LogoutOutlined, UserDeleteOutlined, QuestionOutlined} from '@ant-design/icons'
 
 import { Tooltip } from "antd";
+import http from "./utils/http"
 interface RoomProfileInterface{
     name: string,
     gender: number,
@@ -48,59 +49,31 @@ interface Online{
 export default function Home() {
   const [rooms, setRooms] = useState<Array<RoomProfileInterface>>([]);
   const router = useRouter();
-  const {userId, setUserId, interests, setInterests, firebase, auth, user, firestore} = useContext(UserContext);
+  const {userId, setUserId, interests, user, setState} = useContext(UserContext);
   const {setRoomId, setConnect} = useContext(RoomContext);
   const count = useRef(1);
   const id = useRef("");
   const [name, setName] = useState("");
   const [gender, setGender] = useState(0);
   const [err, setErr] = useState(false);
-  const followRef = firestore.collection("follow");
   const [online, setOnline] = useState<Array<Online>>([]);
   const render = useRef(1);
-  const signInWithGoogle = () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider);
+  const signIn = () => {
+    router.push("/login")
   }
+
   const unfollow = async (uid:string) => {
     try{
-        await Promise.all(
-            [
-                followRef.where("uid-1", "==", user.uid).get()
-                .then((querySnapshot) => {
-                    querySnapshot.forEach((doc) => {
-                        // Access each document
-                        const data = doc.data();
-                        
-                        const uid2 = data['uid-2']
-                        if (uid == uid2) {
-                            doc.ref.delete();
-                        }
-                        
-                    });
-                })
-                , followRef.where("uid-2", "==", user.uid).get()
-                .then((querySnapshot) => {
-                    querySnapshot.forEach((doc) => {
-                        // Access each document
-                        const data = doc.data();
-                        const uid1 = data['uid-1']
-                       if (uid == uid1) {
-                            doc.ref.delete();
-                       }
-                        
-                    });
-                })
-                
-            ]
-        )
-        socket.emit("unfollowed", uid, user.uid)
-        const newOnline = online.filter((value) => {
-            return (
-                value.uid != uid
-            )
-        })
-        setOnline([...newOnline])
+        await http.postWithAutoRefreshToken("/removeFollow", {peerId: uid}, {useAccessToken: true});
+        if (user && "uid" in user && user.uid){
+            socket.emit("unfollowed", uid, user?.uid)
+            const newOnline = online.filter((value) => {
+                return (
+                    value.uid != uid
+                )
+            })
+            setOnline([...newOnline])
+        }
     } catch(e) {
         toast("Error when unfollowing", {type: "error", autoClose: 3000})
     }
@@ -144,45 +117,31 @@ export default function Home() {
     }) 
     
   useEffect(() => {
-      if (user) {
-        Promise.all(
-            [followRef.where("uid-1", "==", user.uid).get()
-            .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    // Access each document
-                    const data = doc.data();
-                    const uid2 = data['uid-2']
-                    socket.emit("notify", uid2, user.displayName, user.uid)
-                    
-                });
+      if (user && "uid" in user && "name" in user) {
+        try{
+            http.getWithAutoRefreshToken("/getFollowers", {useAccessToken: true})
+            .then((data) => {
+                data.followed.forEach((follower: {_id: string}) => {
+                    socket.emit("notify", follower._id, user.name, user.uid)
+                })
             })
             .catch((e) => {
-                console.log("Error getting", e)
-            }), followRef.where("uid-2", "==", user.uid).get()
-            .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    // Access each document
-                    const data = doc.data();
-                    const uid1 = data['uid-1']
-                    socket.emit("notify", uid1, user.displayName, user.uid)
-                    
-                });
+                console.log(e);
             })
-            .catch((e) => {
-                console.log("Error getting", e)
-            })]
-        )
+        }
+        catch (e) {
+            console.log(e);
+        }
       }
       return (() => {
       })
   }, [user])
-//   useEffect(() => {
-//     console.log(online)
-//   }, [online])
   useEffect(() => {
-    if (user) {
-        // socket.off("online")
-        setName(curr => user.displayName)
+    console.log(online)
+  }, [online])
+  useEffect(() => {
+    if (user && "name" in user && "uid" in user) {
+        setName(curr => user.name)
         socket.on("unfollowed", (uid) => {
             const newOnline = online.filter((value) => {
                 return (
@@ -193,7 +152,7 @@ export default function Home() {
         })
         socket.on("online", (name:string, uidFollow:string) => {
             toast(`${name} is online`)
-            socket.emit("me-too", uidFollow, user.displayName, user.uid)
+            socket.emit("me-too", uidFollow, user.name, user.uid)
             const newOnline = online.filter((acc) => {
                 return (
                     acc.uid != uidFollow
@@ -202,9 +161,7 @@ export default function Home() {
             newOnline.push({name, uid: uidFollow})
             console.log(newOnline)
             setOnline([...newOnline])
-            
         })
-        // socket.off("me-too")
         socket.on("me-too", (name:string, uidFollow: string) => {
             toast(`${name} is online`)
             const newOnline = online.filter((acc) => {
@@ -320,6 +277,7 @@ export default function Home() {
 //   const groups = ["Male", "Female"]
   const request = (e) => {
       if (!name){
+        console.log(name);
           toast("Enter your name", {type: "error", autoClose: 4000})
           return
       }
@@ -341,6 +299,13 @@ export default function Home() {
   const handleScroll = (e) => {
     const joinRoom = document.getElementById("join-room");
     joinRoom?.scrollIntoView({behavior: "smooth"})
+  }
+  const logout = async () => {
+    localStorage.clear();
+    if (user && "uid" in user){
+        socket.emit("logout", user.uid)
+    };
+    setState(curr => !curr); 
   }
   
   return (
@@ -382,23 +347,27 @@ export default function Home() {
             <ToastContainer></ToastContainer>
             <div id="Header" style={{height: "10%", fontWeight:"bold", paddingRight: "20px"}} className="py-6 text-2xl flex justify-between">
                 <div>PeerChat</div>
-                {user ?(
+                {(user && 'name' in user && (typeof user.name == 'string')) ?(
                     <div className="flex" style={{gap: "15px"}}>
-                        {/* <Dropdown menu={{ items }} placement="bottom" arrow trigger={["click"]}>
+                        <Dropdown menu={{ items }} placement="bottom" arrow trigger={["click"]}>
                         <Tooltip placement="leftTop" title="Following">
                             <svg className="w-9 h-9 text-gray-800 cursor-pointer" xmlns="http://www.w3.org/2000/svg" fill="black" viewBox="0 0 24 24">
                                     <path stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 6H5m2 3H5m2 3H5m2 3H5m2 3H5m11-1a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2M7 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 7a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>
                             </svg> 
                         </Tooltip>
-                        </Dropdown>    */}
-                        <div>Hi {user.displayName}</div> 
+                        </Dropdown>   
+                        <div>Hi {user.name}</div> 
                         <Tooltip title="Log out">
-                        <Button onClick={() => {auth.signOut(); socket.emit("logout", user.uid)}} >
+                        <Button onClick={logout} >
                             <LogoutOutlined></LogoutOutlined>
                         </Button>
                         </Tooltip>
                     </div>
-                ) : <Button onClick={signInWithGoogle}>Sign in</Button>}
+                ) :
+                <div className="flex gap-4">
+                    <Button onClick={signIn}>Sign in</Button>
+                    <Button onClick={() => {router.push("/signup")}}>Sign up</Button>
+                </div>}
             </div>
             
             <div id="Main" className="flex flex-row" style={{height: "90%", paddingLeft:"50px"}}>
@@ -449,8 +418,9 @@ export default function Home() {
         <div className="h-screen flex flex-col" style={{gap: "30px"}} id="join-room">
             <div className="flex justify-center items-center">
                         {/* <input onChange={getName} type="text" id="first_name" className="my-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-3/4 p-2.5" placeholder="John" required /> */}
-                    {(user) ? <Input placeholder="Enter your name" size={"middle"} value={user.displayName} className="my-8 w-96"/> :
-                    <Input status="error" placeholder="Enter your name" size={"middle"} onChange={getName} className="my-8 w-96"/>}
+                    {(user && "name" in user && (typeof user.name == "string")) ? <Input placeholder="Enter your name" size={"middle"} value={user.name} className="my-8 w-96"/> :
+                    <>
+                    <Input placeholder="Enter your name" size={"middle"} onChange={getName} className="my-8 w-96"/>
                     <Select
                         defaultValue= "Male"
                         style={{ width: 120 }}
@@ -460,6 +430,7 @@ export default function Home() {
                             { value: 1, label: 'Female' },
                         ]}
                     />
+                    </>}
             </div>
             <AvailableRooms dispatch={dispatch} rooms={rooms} request={request} requestState = {requestState}></AvailableRooms>
         </div>

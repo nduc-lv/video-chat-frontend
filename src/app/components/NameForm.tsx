@@ -23,7 +23,7 @@ export default function NameForm({setName, name, dispatch, nextPage, prevPage}:a
     }
     const {user} = useContext(UserContext)
     if (user) {
-        setName(curr => user.displayName) 
+        setName(curr => user.name) 
     }
     return (
         <>
@@ -35,7 +35,7 @@ export default function NameForm({setName, name, dispatch, nextPage, prevPage}:a
                     <div className="flex justify-center items-center">
                         {/* <input onChange={getName} type="text" id="first_name" className="my-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-3/4 p-2.5" placeholder="John" required /> */}
                         {/* <Input placeholder="Enter your name" size={"large"} onChange={getName} className="my-8 w-3/4"/> */}
-                        {user ?  <Input value={user.displayName} size={"large"} allowClear={false} className="my-8 w-3/4"/>:  <Input placeholder="Enter your name" size={"large"} onChange={getName} className="my-8 w-3/4"/>}
+                        {user ?  <Input value={user.name} size={"large"} allowClear={false} className="my-8 w-3/4"/>:  <Input placeholder="Enter your name" size={"large"} onChange={getName} className="my-8 w-3/4"/>}
                     </div>
                     <div className="flex justify-center gap-2.5 items-center ">
                     {(!prevPage) ||

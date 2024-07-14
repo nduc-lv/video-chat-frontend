@@ -13,13 +13,12 @@ import { UserContext } from "../context/UserContext";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Follow from "./Follow";
-export default function Controls({dispatch, mode,width, height, setShare}:any) {
+export default function Controls({dispatch, mode,width, height, setShare, share}:any) {
     const [video,setVideo] = useState<boolean>(true);
     const [audio, setAudio] = useState<boolean>(true);
     const {call, myStream} = useContext(RoomContext);
     const {roomId} = useContext(RoomContext)
-    const {user, firestore} = useContext(UserContext)
-    const followRef = firestore.collection('follow');
+    const {user} = useContext(UserContext)
     
     const selectAudio = useRef<any>()
     const selectCamera = useRef<any>()
@@ -84,6 +83,7 @@ export default function Controls({dispatch, mode,width, height, setShare}:any) {
     }
     const follow = () => {
         // follow
+        console.log(user);
         socket.emit("follow", user.uid, roomId)
     }
     return (
@@ -98,14 +98,15 @@ export default function Controls({dispatch, mode,width, height, setShare}:any) {
                     <PhoneHang height={height} width={width}></PhoneHang>
                     End
                 </button>
-                <button onClick={toggleChat} className="inline-flex items-center px-4 py-2 text-sm font-medium border-t border-b hover:bg-gray-100 hover:text-blue-700 bg-gray-800 border-gray-700 text-white hover:text-white hover:bg-gray-700 focus:ring-blue-500 focus:text-white">
-                    <Message></Message>
-                    Chat
-                </button>
                 <button onClick={toggleCamera} ref={selectCamera} className="inline-flex items-center px-4 py-2 text-sm font-medium border-t border-b hover:bg-gray-100 hover:text-blue-700 bg-gray-800 border-gray-700 text-white hover:text-white hover:bg-gray-700 focus:ring-blue-500 focus:text-white">
                     <Cam height={height} width={width}></Cam>
                     Off
                 </button>
+                
+                {!share ? <button onClick={toggleChat} className="inline-flex items-center px-4 py-2 text-sm font-medium border-t border-b hover:bg-gray-100 hover:text-blue-700 bg-gray-800 border-gray-700 text-white hover:text-white hover:bg-gray-700 focus:ring-blue-500 focus:text-white">
+                    <Message></Message>
+                    Chat
+                </button> : <></>}
                 {!(user) || <button onClick={follow} className="inline-flex items-center px-4 py-2 text-sm font-medium border-t border-b hover:bg-gray-100 hover:text-blue-700 bg-gray-800 border-gray-700 text-white hover:text-white hover:bg-gray-700 focus:ring-blue-500 focus:text-white">
                     <Follow></Follow>
                     Follow

@@ -1,13 +1,18 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import YouTube, {YouTubeProps} from "react-youtube"
 import { useEffect } from "react";
-export default function YoutubeVideoPlayer({videoId, roomId,socket, mode}:any){
+export default function YoutubeVideoPlayer({videoId, roomId,socket, mode, isJoinRoom}:any){
     let youtubePlayer:any;
     let lastTime = -1;
     let preState = -1;
+    const [player, setPlayer] = useState<any>();
     const onPlayerReady: YouTubeProps['onReady'] = (event) => {
         // access to player in all event handlers via event.target
         youtubePlayer = event.target;
+        // setPlayer(curr => youtubePlayer);
+        if (mode == "alone") {
+            socket.on("")
+        }
         socket.on('video-seek', (time:any) => {
             console.log("video-seek");
             lastTime = time;
@@ -32,16 +37,27 @@ export default function YoutubeVideoPlayer({videoId, roomId,socket, mode}:any){
             youtubePlayer.playVideo()
             
         })
-        // event.target.pauseVideo();
+        socket.on("save-vid", () => {
+            localStorage.setItem("videoId", videoId);
+            localStorage.setItem("timeStamp", youtubePlayer.getCurrentTime());
+        })
+        event.target.pauseVideo();
     }
+    // useEffect(() => {
+    //     if (mode == "alone" && isJoinRoom){
+    //         localStorage.setItem("videoId", videoId);
+    //         localStorage.setItem("timeStamp", player.getCurrentTime());
+    //     }
+    // }, [isJoinRoom, player])
     useEffect(() => {
         socket.emit("add-video", socket.id, videoId);
         return () => {
             socket.emit("remove-video", socket.id);
             if (socket){
-                socket.off("video-seek");
                 socket.off("video-stop");
+                socket.off("video-seek");
                 socket.off("video-play");
+                socket.off("save-vid");
             }
         }
     }, [videoId]);

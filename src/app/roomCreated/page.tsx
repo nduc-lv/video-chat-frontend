@@ -24,6 +24,7 @@ export default function RoomCreated() {
     const [watchYoutube, setWatchYoutube] = useState(false);
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
+    const [isJoinRoom, setIsJoinRoom] = useState(false);
     const stateReducer = (state:any, action: {type: string}) => {
         switch (action.type) {
           case "none": {
@@ -65,6 +66,8 @@ export default function RoomCreated() {
         dispatch({type: "accepted"})
         socket.emit("request-accepted", socketId, roomId,name);
         socket.emit("found-peer", socket.id, roomId, e.target.dataset.name)
+        socket.emit("save-vid", socket.id);
+        setIsJoinRoom(curr => true);
     }
     const decline = (e:any) => {
         e.preventDefault();
@@ -161,7 +164,7 @@ export default function RoomCreated() {
             </div>) : 
             <div className="h-screen flex flex-row">
                 <div style={{width: "75vw"}}>
-                <WatchTogether roomId={roomId} mode={"alone"}></WatchTogether>
+                <WatchTogether roomId={roomId} mode={"alone"} isJoinRoom={isJoinRoom}></WatchTogether>
             </div>
             <div style={{ backgroundColor:"#19202A"}} className="flex flex-col justify-between items-end grow">
                 <div style={{width:"20vw"}}>

@@ -19,6 +19,7 @@ import ChatSection from "../components/ChatSection";
 import VideoModeReducer from "../reducers/VideoModeReducer";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import http from "../utils/http";
 // get peer Id
 
 // const peer = new Peer(undefined, {host:"/", port: "9000"});
@@ -29,11 +30,10 @@ export default function VideoCall(){
     const peervideo = useRef<HTMLVideoElement>();
     const {myStream, peerStream, roomId, checkInRoom} = useContext(RoomContext);
     const router = useRouter();
-    const {userId, user, firestore} = useContext(UserContext);
+    const {userId, user} = useContext(UserContext);
     const [share, setShare] = useState(false);
     const [mode, dispatch] = useReducer(VideoModeReducer, "normal")
     const [toggleCam, setToggleCam] = useState(true);
-    const followRef = firestore.collection('follow');
     useEffect(() => {
         socket.on("follow-dup", () => {
             toast(`You've already followed ${localStorage.getItem("peerName")}`, {type: "error", autoClose: 3000})
@@ -46,46 +46,20 @@ export default function VideoCall(){
             toast(`${localStorage.getItem("peerName")} has not signed in`, {type: "error", autoClose: 3000})
         })
         socket.on("follow", async (uid) => {
-            if (!user) {
+            if (!user || !("uid" in user)) {
                 socket.emit("follow-err", roomId)
             }
             else {
                 try {
-                    await  Promise.all(
-                        [followRef.where("uid-1", "==", user.uid).get()
-                        .then((querySnapshot) => {
-                            querySnapshot.forEach((doc) => {
-                                // Access each document
-                                const data = doc.data();
-                                
-                                const uid2 = data['uid-2']
-                                if (uid2 == uid) {
-                                    throw new Error("DUP")
-                                }
-                                
-                            });
-                        })
-                    
-                     , followRef.where("uid-2", "==", user.uid).get()
-                        .then((querySnapshot) => {
-                            querySnapshot.forEach((doc) => {
-                                // Access each document
-                                const data = doc.data();
-                                const uid1 = data['uid-1']
-                                if (uid == uid1) {
-                                    throw new Error("DUP")
-                                }
-                                
-                            });
-                        })
-                        ]
-                    )
-                    await followRef.add({
-                            "uid-1": uid,
-                            "uid-2": user.uid
+                    const data = await http.getWithAutoRefreshToken("/getFollowers", {useAccessToken: true});
+                    const followers = data.followed;
+                    followers.forEach((follower: {_id: string}) => {
+                        if (follower._id == uid) {
+                            throw new Error("DUP")
                         }
-                    )
-                    toast(localStorage.getItem("peerName") + " followed you", {type: "info", autoClose: 2000})
+                    })
+                    await http.postWithAutoRefreshToken("/addFollow", {peerId: uid}, {useAccessToken: true});
+                    toast(localStorage.getItem("peerName") + " followed you", {type: "info", autoClose: 3000})
                     socket.emit("follow-success", roomId)
                 }
                 catch(e) {
@@ -130,7 +104,22 @@ export default function VideoCall(){
         })
         if (checkInRoom.current == false){
             checkInRoom.current = true;
-           
+        }
+        // share
+        // watch-video
+        // setVideo
+        if (localStorage.getItem("videoId")) {
+            console.log("continue-video")
+            const videoId = localStorage.getItem("videoId");
+            const timeStamp = localStorage.getItem("timeStamp");
+            console.log(videoId);
+            console.log(timeStamp);
+            setTimeout(() => {
+                socket.emit("continue-video", roomId, videoId, +timeStamp);
+            }, 1000)
+            localStorage.removeItem("videoId");
+            localStorage.removeItem("timeStamp");
+            console.log(socket);
         }
         return (() => {
             socket.off("toggle-camera")
@@ -182,7 +171,7 @@ export default function VideoCall(){
             }
             
             <div className="absolute top-[90%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <Controls dispatch={dispatch} mode={mode} setShare={setShare}width={"2rem"} height={"2rem"}></Controls>
+                    <Controls dispatch={dispatch} mode={mode} setShare={setShare} width={"2rem"} height={"2rem"} share={share}></Controls>
             </div>
     </div>
     )
