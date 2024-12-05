@@ -156,7 +156,7 @@ html{
     height: 10%;
     color: white;
     width: 100%;
-    max-width: 728px;
+    /* max-width: 728px; */
     top: 0;
     display: flex;
     align-items: center;

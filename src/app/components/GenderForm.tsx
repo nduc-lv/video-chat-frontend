@@ -2,12 +2,11 @@
 
 import { useState } from "react"
 
-export default function GenderForm({setGender, gender, dispatch, sexualInterest, setSexualInterest}:any){
+export default function GenderForm({setGender, gender, dispatch, sexualInterest, setSexualInterest, nextPage, prevPage}:any){
     const groups = ["Male", "Female"]
     const sexualGroups = ["Male", "Female", "Everyone"]
     const [selectedGender, setSelectedGender] = useState<number>(0);
     const [selectedInterest, setSelectedInterest] = useState<number>(0);
-    console.log(sexualInterest);
     const onClickGender = (e:any) => {
         if (!(e.target instanceof HTMLElement)) {
             console.log(e.target);
@@ -23,7 +22,6 @@ export default function GenderForm({setGender, gender, dispatch, sexualInterest,
             return;
         }
         const ele = e.target;
-        console.log(+ele.dataset.type);
         setSelectedInterest(+ele.dataset.type);
         setSexualInterest(+ele.dataset.type);
     }
@@ -33,7 +31,10 @@ export default function GenderForm({setGender, gender, dispatch, sexualInterest,
         }
         localStorage.setItem("gender", gender);
         localStorage.setItem("sexualInterest", sexualInterest);
-        dispatch({type: "languageForm"});
+        dispatch({type: nextPage});
+    }
+    const prev = (e: any) => {
+        dispatch({type: prevPage})
     }
     return (
         <>
@@ -61,8 +62,11 @@ export default function GenderForm({setGender, gender, dispatch, sexualInterest,
                             </>
                         )
                     })}
-                    <div>
-                    <button  onClick={next} className="mt-8 text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Next</button>
+                    <div className="flex justify-center gap-2.5 items-center mt-8">
+                    {(!prevPage) ||
+                        <button  onClick={prev} className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Back</button>
+                    }
+                    <button  onClick={next} className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Next</button>
                     </div>
                 </div>
             </div>

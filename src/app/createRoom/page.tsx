@@ -6,9 +6,8 @@ import profileReducer from "../reducers/ProfileReducer"
 import AgeForm from "../components/AgeForm"
 import GenderForm from "../components/GenderForm"
 import LanguageForm from "../components/LanguageForm"
-import InterestForm from "../components/InterestForm"
+import DescriptionForm from "../components/DescriptionForm"
 import { UserContext } from "../context/UserContext"
-import { useRouter } from "next/navigation"
 
 export default function ProfileSetup(){
     const [name, setName] = useState<string>()
@@ -17,9 +16,8 @@ export default function ProfileSetup(){
     const [genderInterest, setGenderInterest] = useState<number>(0);
     const [gender, setGender] = useState<number>(0);
     const [language, setLanguage] = useState<number>(-1);
-    const [selectedInterests, setInterests] = useState([]);
+    const [description, setDescription] = useState<string>("");
     const {user} = useContext(UserContext);
-    const router = useRouter();
     function getYearDifference(date1: Date, date2: Date) {
         // Ensure the earlier date is the first parameter
         if (date1 > date2) {
@@ -74,17 +72,17 @@ export default function ProfileSetup(){
         }
         return (
             <>
-              <InterestForm selectedInterests={selectedInterests} setInterests={setInterests} dispatch={dispatch} prevPage = {"language"}></InterestForm>  
+                <DescriptionForm prevPage = {"language"} description = {description} setDescription = {setDescription}></DescriptionForm>
             </>
         )
     }
     return(
         <>
-            { !(state=="name") || <NameForm setName={setName} name={name} dispatch={dispatch} nextPage = {"age"}></NameForm>}
-            { !(state=="age") || <AgeForm setAgeGroup={setAgeGroup} ageGroup={ageGroup} dispatch={dispatch} nextPage = {"gender"} prevPage = {"name"}> </AgeForm>}
-            {!(state=="gender") || <GenderForm setGender={setGender} gender={gender} dispatch={dispatch} nextPage = {"language"} prevPage = {"age"} sexualInterest={genderInterest} setSexualInterest={setGenderInterest}></GenderForm>}
-            {!(state == "language") || <LanguageForm language={language} setLanguage={setLanguage} dispatch={dispatch} nextPage = {"interests"} prevPage = {"gender"}></LanguageForm>}
-            {!(state =="interests") || <InterestForm selectedInterests={selectedInterests} setInterests={setInterests} dispatch={dispatch} prevPage = {"language"}></InterestForm>}
+            {!(state=="name") || <NameForm setName={setName} name={name} dispatch={dispatch} nextPage = {"age"}></NameForm>}
+            { !(state=="age") || <AgeForm setAgeGroup={setAgeGroup} ageGroup={ageGroup} dispatch={dispatch} nextPage = {"gender"} prevPage = {"name"}></AgeForm>}
+            {!(state=="gender") || <GenderForm setGender={setGender} gender={gender} dispatch={dispatch} sexualInterest={genderInterest} setSexualInterest={setGenderInterest} nextPage = {"language"} prevPage = {"age"}></GenderForm>}
+            {!(state == "language") || <LanguageForm nextPage = {"description"} prevPage= {"gender"} language={language} setLanguage={setLanguage} dispatch={dispatch}></LanguageForm>}
+            {!(state == "description") || <DescriptionForm prevPage = {"language"} description = {description} setDescription = {setDescription}></DescriptionForm>}
         </>
     )
 }

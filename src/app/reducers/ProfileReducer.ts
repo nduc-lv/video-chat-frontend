@@ -4,20 +4,23 @@ interface Action{
 
 export default function profileReducer(state:any, action:Action){
     switch (action.type) {
-        case "nameForm":{
+        case "name":{
             return "name"
         }
-        case "ageForm": {
+        case "age": {
             return "age"
         }
-        case "genderForm":{
+        case "gender":{
             return "gender"
         }
-        case "languageForm":{
+        case "language":{
             return "language"
         }
-        case "interestForm":{
+        case "interests":{
             return "interests"
+        }
+        case "description": {
+            return "description"
         }
       }
       throw Error('Unknown action: ' + action.type);
